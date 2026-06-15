@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useForm, ValidationError } from '@formspree/react';
 import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { Reveal } from '../components/ui/Reveal';
 
@@ -8,16 +8,7 @@ const phoneHref = 'tel:+919448525079';
 const whatsappHref = 'https://wa.me/919448525079';
 
 export function Contact({ embedded = false }) {
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const data = new FormData(form);
-    const body = [...data.entries()].map(([k, v]) => `${k}: ${v}`).join('\n');
-    window.location.href = `mailto:exports@vaaliadvisory.com?subject=Import%20Quote%20Request&body=${encodeURIComponent(body)}`;
-    setSubmitted(true);
-  };
+  const [state, handleFormSubmit] = useForm('mykanrlz');
 
   return (
     <section id="contact" className={embedded ? 'pb-12 lg:pb-16' : 'border-t border-white/[0.06] py-24 lg:py-32'}>
@@ -76,7 +67,8 @@ export function Contact({ embedded = false }) {
           )}
 
           <Reveal delay={1} className={embedded ? 'lg:col-span-1' : ''}>
-            <form onSubmit={handleSubmit} className="glass rounded-2xl p-6 lg:p-8">
+            <form onSubmit={handleFormSubmit} className="glass rounded-2xl p-6 lg:p-8">
+              <input type="hidden" name="_subject" value="Import Quote Request" />
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block sm:col-span-1">
                   <span className="mb-1.5 block text-xs text-creamMuted">Name</span>
@@ -114,17 +106,19 @@ export function Contact({ embedded = false }) {
                 <label className="block sm:col-span-1">
                   <span className="mb-1.5 block text-xs text-creamMuted">Email</span>
                   <input name="email" type="email" required className="input-field" autoComplete="email" />
+                  <ValidationError field="email" errors={state.errors} />
                 </label>
                 <label className="block sm:col-span-2">
                   <span className="mb-1.5 block text-xs text-creamMuted">Message</span>
                   <textarea name="message" rows={4} className="input-field resize-none" placeholder="Variety, specs, Incoterms, target port..." />
+                  <ValidationError field="message" errors={state.errors} />
                 </label>
               </div>
-              <button type="submit" className="btn-gold mt-6 w-full">
-                Send import enquiry <ArrowRight size={18} />
+              <button type="submit" disabled={state.submitting} className="btn-gold mt-6 w-full">
+                {state.submitting ? 'Sending…' : 'Send import enquiry'} <ArrowRight size={18} />
               </button>
-              {submitted && (
-                <p className="mt-4 text-center text-sm text-gold">Opening your email client with enquiry details…</p>
+              {state.succeeded && (
+                <p className="mt-4 text-center text-sm text-gold">Thanks — your enquiry was sent.</p>
               )}
             </form>
           </Reveal>
