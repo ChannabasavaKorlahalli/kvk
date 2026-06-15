@@ -8,7 +8,7 @@ const phoneHref = 'tel:+919448525079';
 const whatsappHref = 'https://wa.me/919448525079';
 
 export function Contact({ embedded = false }) {
-  const [state, handleFormSubmit] = useForm('mykanrlz');
+  const [state, handleSubmit] = useForm('mykanrlz');
 
   return (
     <section id="contact" className={embedded ? 'pb-12 lg:pb-16' : 'border-t border-white/[0.06] py-24 lg:py-32'}>
@@ -67,7 +67,7 @@ export function Contact({ embedded = false }) {
           )}
 
           <Reveal delay={1} className={embedded ? 'lg:col-span-1' : ''}>
-            <form onSubmit={handleFormSubmit} className="glass rounded-2xl p-6 lg:p-8">
+            <form onSubmit={handleSubmit} className="glass rounded-2xl p-6 lg:p-8">
               <input type="hidden" name="_subject" value="Import Quote Request" />
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block sm:col-span-1">
@@ -114,6 +114,7 @@ export function Contact({ embedded = false }) {
                   <ValidationError field="message" errors={state.errors} />
                 </label>
               </div>
+              <ValidationError errors={state.errors} className="mt-4 text-center text-sm text-red-400" />
               <button type="submit" disabled={state.submitting} className="btn-gold mt-6 w-full">
                 {state.submitting ? 'Sending…' : 'Send import enquiry'} <ArrowRight size={18} />
               </button>
