@@ -67,7 +67,7 @@ export function Contact({ embedded = false }) {
           )}
 
           <Reveal delay={1} className={embedded ? 'lg:col-span-1' : ''}>
-            <form action="https://formspree.io/f/mykanrlz" method="POST" onSubmit={handleFormSubmit} className="glass rounded-2xl p-6 lg:p-8">
+            <form onSubmit={handleFormSubmit} className="glass rounded-2xl p-6 lg:p-8">
               <input type="hidden" name="_subject" value="Import Quote Request" />
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block sm:col-span-1">
