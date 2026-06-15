@@ -1,14 +1,47 @@
-import { useForm, ValidationError } from '@formspree/react';
+import { useState } from 'react';
 import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { Reveal } from '../components/ui/Reveal';
 
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mykanrlz';
 const commodities = ['Rice', 'Pulses', 'Neem Oil', 'Maize', 'Multiple / Other'];
 const phoneNumber = '+91 9448525079';
 const phoneHref = 'tel:+919448525079';
 const whatsappHref = 'https://wa.me/919448525079';
 
 export function Contact({ embedded = false }) {
-  const [state, handleSubmit] = useForm('mykanrlz');
+  const [submitting, setSubmitting] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    setSubmitting(true);
+    setError('');
+    setSucceeded(false);
+
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to send your enquiry. Please try again.');
+      }
+
+      form.reset();
+      setSucceeded(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to send your enquiry. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <section id="contact" className={embedded ? 'pb-12 lg:pb-16' : 'border-t border-white/[0.06] py-24 lg:py-32'}>
@@ -106,19 +139,17 @@ export function Contact({ embedded = false }) {
                 <label className="block sm:col-span-1">
                   <span className="mb-1.5 block text-xs text-creamMuted">Email</span>
                   <input name="email" type="email" required className="input-field" autoComplete="email" />
-                  <ValidationError field="email" errors={state.errors} />
                 </label>
                 <label className="block sm:col-span-2">
                   <span className="mb-1.5 block text-xs text-creamMuted">Message</span>
                   <textarea name="message" rows={4} className="input-field resize-none" placeholder="Variety, specs, Incoterms, target port..." />
-                  <ValidationError field="message" errors={state.errors} />
                 </label>
               </div>
-              <ValidationError errors={state.errors} className="mt-4 text-center text-sm text-red-400" />
-              <button type="submit" disabled={state.submitting} className="btn-gold mt-6 w-full">
-                {state.submitting ? 'Sending…' : 'Send import enquiry'} <ArrowRight size={18} />
+              {error && <p className="mt-4 text-center text-sm text-red-400">{error}</p>}
+              <button type="submit" disabled={submitting} className="btn-gold mt-6 w-full">
+                {submitting ? 'Sending…' : 'Send import enquiry'} <ArrowRight size={18} />
               </button>
-              {state.succeeded && (
+              {succeeded && (
                 <p className="mt-4 text-center text-sm text-gold">Thanks — your enquiry was sent.</p>
               )}
             </form>
